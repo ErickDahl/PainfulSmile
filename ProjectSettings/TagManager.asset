@@ -47,3 +47,9 @@ TagManager:
   - name: Ground
     uniqueID: 3018897677
     locked: 0
+  - name: Ships
+    uniqueID: 2794045631
+    locked: 0
+  - name: UI
+    uniqueID: 1794270625
+    locked: 0
