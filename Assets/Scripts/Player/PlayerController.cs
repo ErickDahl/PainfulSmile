@@ -1,82 +1,48 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : ShipBase
 {
-    [SerializeField]
-    private InputReader _playerInputReader;
-
-    [Header("Player Configs")]
-    [SerializeField]
-    private float _moveSpeed = 5f;
-
-    [SerializeField]
-    private float _rotationSpeed = 5f;
-
     [SerializeField]
     private float _maxVelocity = 5f;
 
-    private Rigidbody2D _playerRB;
-    private Vector2 _moveDirection;
-    private bool _isShootingFront;
-    private bool _isShootingSide;
-    private bool _isPlayerDead;
-    private Health _playerHealth;
+    [SerializeField]
+    private InputReader _playerInputReader;
 
     void OnEnable()
     {
         _playerInputReader.OnMoveEvent += GetMove;
-        _playerInputReader.OnShootFrontEvent += GetShootFront;
-        _playerInputReader.OnShootSideEvent += GetShootSide;
-        _playerHealth.OnDeath += OnPlayerDeath;
+        _playerInputReader.OnShootFrontEvent += ShootFront;
+        _playerInputReader.OnShootSideEvent += ShootSide;
+        _shipHealth.OnDeath += OnShipDeath;
     }
 
     void OnDisable()
     {
         _playerInputReader.OnMoveEvent -= GetMove;
-        _playerInputReader.OnShootFrontEvent -= GetShootFront;
-        _playerInputReader.OnShootSideEvent -= GetShootSide;
-        _playerHealth.OnDeath -= OnPlayerDeath;
-    }
-
-    void Awake()
-    {
-        _playerHealth = GetComponent<Health>();
-        _playerRB = GetComponent<Rigidbody2D>();
-        _isPlayerDead = false;
+        _playerInputReader.OnShootFrontEvent -= ShootFront;
+        _playerInputReader.OnShootSideEvent -= ShootSide;
+        _shipHealth.OnDeath -= OnShipDeath;
     }
 
     void FixedUpdate()
     {
-        if (!_isPlayerDead)
+        if (!_isShipDead)
         {
-            MovePlayer();
-            RotatePlayer();
+            MoveShip();
+            RotateShip();
         }
     }
 
-    private void MovePlayer()
+    protected override void MoveShip()
     {
         Vector2 force = transform.up * _moveDirection.y * _moveSpeed;
-        _playerRB.AddForce(force);
+        _shipRB.AddForce(force);
         ClampVelocity();
     }
 
-    private void ClampVelocity()
-    {
-        float x = Mathf.Clamp(_playerRB.velocity.x, -_maxVelocity, _maxVelocity);
-        float y = Mathf.Clamp(_playerRB.velocity.y, -_maxVelocity, _maxVelocity);
-
-        _playerRB.velocity = new Vector2(x, y);
-    }
-
-    private void RotatePlayer()
+    protected override void RotateShip()
     {
         transform.Rotate(0, 0, _moveDirection.x * -_rotationSpeed);
-    }
-
-    private void OnPlayerDeath()
-    {
-        _isPlayerDead = true;
     }
 
     private void GetMove(Vector2 direction)
@@ -86,14 +52,20 @@ public class PlayerController : MonoBehaviour
         _moveDirection = direction;
     }
 
-    private void GetShootFront(bool isShooting)
+    private void ShootFront(bool isShooting)
     {
-        _isShootingFront = isShooting;
+        if (isShooting)
+        {
+            TryToShoot(ShootType.Front);
+        }
     }
 
-    private void GetShootSide(bool isShooting)
+    private void ShootSide(bool isShooting)
     {
-        _isShootingSide = isShooting;
+        if (isShooting)
+        {
+            TryToShoot(ShootType.Side);
+        }
     }
 
     private Vector2 DisableBackwardMoviment(Vector2 moviment)
@@ -102,5 +74,13 @@ public class PlayerController : MonoBehaviour
             moviment.y = 0;
 
         return moviment;
+    }
+
+    private void ClampVelocity()
+    {
+        float x = Mathf.Clamp(_shipRB.velocity.x, -_maxVelocity, _maxVelocity);
+        float y = Mathf.Clamp(_shipRB.velocity.y, -_maxVelocity, _maxVelocity);
+
+        _shipRB.velocity = new Vector2(x, y);
     }
 }

@@ -15,12 +15,11 @@ public class Health : MonoBehaviour, IDamageable
         _currentHealth = _maxHealth;
     }
 
-    void Update()
+    public void Kill()
     {
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            TakeDamage(10);
-        }
+        _currentHealth = 0;
+        OnTakeDamage?.Invoke((float)_currentHealth / _maxHealth);
+        OnDeath?.Invoke();
     }
 
     public void TakeDamage(int damage)

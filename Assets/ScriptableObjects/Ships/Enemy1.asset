@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d774da10ad4bdd24d97774e20b8f6256, type: 3}
+  m_Name: Enemy1
+  m_EditorClassIdentifier: 
+  _healthySprite: {fileID: 21300000, guid: c29598fb3b32c994ba098557b6f4fa1a, type: 3}
+  _damagedSprite: {fileID: 21300000, guid: 386f2ceff43480442bea87a75687737c, type: 3}
+  _badlyDamagedSprite: {fileID: 21300000, guid: df9cfa4a1f49173429720ac11ae69f6a, type: 3}
+  _deadSprite: {fileID: 21300000, guid: 452945c44d41a4f4d9d9bffdee8130f6, type: 3}
