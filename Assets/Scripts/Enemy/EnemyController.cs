@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -15,6 +16,7 @@ public class EnemyController : ShipBase
     [SerializeField]
     private EnemyType _enemyType = EnemyType.Shooter;
 
+    public event Action<EnemyController> OnEnemyDestroyedEvent;
     private Transform _playerTransform;
     private NavMeshAgent _agent;
     private bool _isShooter;
@@ -27,6 +29,12 @@ public class EnemyController : ShipBase
         _agent.updateUpAxis = false;
         _agent.speed = _moveSpeed;
         SetEnemyBehavior();
+    }
+
+    void OnDisable()
+    {
+        StopAllCoroutines();
+        OnEnemyDestroyedEvent = null;
     }
 
     void Update()
@@ -43,9 +51,22 @@ public class EnemyController : ShipBase
                 ChaserBehavior();
             }
         }
+
+        if (_isShipDead)
+        {
+            OnEnemyDestroyedEvent?.Invoke(this);
+            _agent.isStopped = true;
+        }
     }
 
-    private void SetEnemyBehavior()
+    public void ResetEnemy()
+    {
+        _shipHealth.ResetHealth();
+        _isShipDead = false;
+        _shipCollider.enabled = true;
+    }
+
+    public void SetEnemyBehavior()
     {
         switch (_enemyType)
         {
@@ -73,7 +94,6 @@ public class EnemyController : ShipBase
             )
             {
                 enemy.Kill();
-                _shipCollider.enabled = false;
             }
         }
     }

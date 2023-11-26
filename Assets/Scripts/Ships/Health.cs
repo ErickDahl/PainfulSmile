@@ -15,6 +15,12 @@ public class Health : MonoBehaviour, IDamageable
         _currentHealth = _maxHealth;
     }
 
+    public void ResetHealth()
+    {
+        _currentHealth = _maxHealth;
+        OnTakeDamage?.Invoke((float)_currentHealth / _maxHealth);
+    }
+
     public void Kill()
     {
         _currentHealth = 0;

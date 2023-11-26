@@ -64,6 +64,7 @@ public abstract class ShipBase : MonoBehaviour
     protected void OnShipDeath()
     {
         _isShipDead = true;
+        _shipCollider.enabled = false;
     }
 
     private void PopulateSidePoints()
