@@ -33,6 +33,13 @@ public class PlayerController : ShipBase
         }
     }
 
+    protected override void OnShipDeath()
+    {
+        _isShipDead = true;
+        _shipCollider.enabled = false;
+        GameManager.Instance.GameOver();
+    }
+
     protected override void MoveShip()
     {
         Vector2 force = transform.up * _moveDirection.y * _moveSpeed;

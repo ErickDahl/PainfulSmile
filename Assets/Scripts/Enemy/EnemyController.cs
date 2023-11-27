@@ -31,9 +31,15 @@ public class EnemyController : ShipBase
         SetEnemyBehavior();
     }
 
+    void OnEnable()
+    {
+        _shipHealth.OnDeath += OnShipDeath;
+    }
+
     void OnDisable()
     {
         StopAllCoroutines();
+        _shipHealth.OnDeath -= OnShipDeath;
         OnEnemyDestroyedEvent = null;
     }
 
@@ -51,12 +57,14 @@ public class EnemyController : ShipBase
                 ChaserBehavior();
             }
         }
+    }
 
-        if (_isShipDead)
-        {
-            OnEnemyDestroyedEvent?.Invoke(this);
-            _agent.isStopped = true;
-        }
+    protected override void OnShipDeath()
+    {
+        _shipCollider.enabled = false;
+        _isShipDead = true;
+        _agent.isStopped = true;
+        OnEnemyDestroyedEvent?.Invoke(this);
     }
 
     public void ResetEnemy()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -38,16 +39,7 @@ public abstract class ShipBase : MonoBehaviour
 
     protected abstract void MoveShip();
     protected abstract void RotateShip();
-
-    void OnEnable()
-    {
-        _shipHealth.OnDeath += OnShipDeath;
-    }
-
-    void OnDisable()
-    {
-        _shipHealth.OnDeath -= OnShipDeath;
-    }
+    protected abstract void OnShipDeath();
 
     private void Awake()
     {
@@ -59,12 +51,6 @@ public abstract class ShipBase : MonoBehaviour
         _bulletPoolParent = new GameObject("BulletPool");
         _frontPoint = transform.Find("FrontBulletPoint");
         PopulateSidePoints();
-    }
-
-    protected void OnShipDeath()
-    {
-        _isShipDead = true;
-        _shipCollider.enabled = false;
     }
 
     private void PopulateSidePoints()

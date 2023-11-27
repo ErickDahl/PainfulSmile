@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class SpawnManager : MonoBehaviour
+public class SpawnManager : GenericSingleton<SpawnManager>
 {
     [SerializeField]
     private EnemyController[] _enemysPrefabs;
@@ -11,7 +12,7 @@ public class SpawnManager : MonoBehaviour
     private float spawnRange = 10f;
 
     [SerializeField]
-    private float _enemySpawnTime = 5f;
+    private float _enemySpawnTime = 1f;
 
     [SerializeField]
     private int _maxEnemysInGame = 8;
@@ -21,29 +22,68 @@ public class SpawnManager : MonoBehaviour
 
     private ObjectPool<EnemyController> _enemyPool;
     private float _initialSpawnTime;
-    private GameObject _enemyPoolParent;
     private int _enemysInGame = 0;
+    private bool _canCountTimer;
+
+    public event Action OnEnemyKilledEvent;
+    public float EnemySpawnTime => _enemySpawnTime;
 
     void Start()
     {
-        _initialSpawnTime = _enemySpawnTime;
         _enemyPool = new ObjectPool<EnemyController>(CreateEnemy);
-        _enemyPoolParent = new GameObject("EnemyPool");
+    }
+
+    void OnEnable()
+    {
+        GameManager.Instance.OnGameOverEvent += OnGameOver;
+    }
+
+    void OnDisable()
+    {
+        GameManager.Instance.OnGameOverEvent -= OnGameOver;
     }
 
     void Update()
     {
-        _enemySpawnTime -= Time.deltaTime;
+        if (_canCountTimer)
+        {
+            _enemySpawnTime -= Time.deltaTime;
 
-        if (_enemySpawnTime <= 0 && _enemysInGame < _maxEnemysInGame)
-        {
-            _enemysInGame++;
-            SpawnEnemy();
-            _enemySpawnTime = _initialSpawnTime;
+            if (_enemySpawnTime <= 0 && _enemysInGame < _maxEnemysInGame)
+            {
+                _enemysInGame++;
+                SpawnEnemy();
+                _enemySpawnTime = _initialSpawnTime;
+            }
+            else if (_enemySpawnTime <= 0)
+            {
+                _enemySpawnTime = _initialSpawnTime;
+            }
         }
-        else if (_enemySpawnTime <= 0)
+    }
+
+    private void OnGameOver()
+    {
+        _canCountTimer = false;
+        _enemySpawnTime = 1;
+    }
+
+    public void EnableTimer()
+    {
+        _initialSpawnTime = _enemySpawnTime;
+        _canCountTimer = true;
+    }
+
+    public void IncreaseEnemySpawnTime()
+    {
+        _enemySpawnTime++;
+    }
+
+    public void DecreaseEnemySpawnTime()
+    {
+        if (_enemySpawnTime > 1)
         {
-            _enemySpawnTime = _initialSpawnTime;
+            _enemySpawnTime--;
         }
     }
 
@@ -61,29 +101,22 @@ public class SpawnManager : MonoBehaviour
         enemy.gameObject.SetActive(true);
         enemy.ResetEnemy();
         enemy.OnEnemyDestroyedEvent += OnEnemyDestroyed;
-        enemy.transform.SetParent(_enemyPoolParent.transform);
     }
 
     private EnemyController CreateEnemy()
     {
-        return Instantiate(_enemysPrefabs[Random.Range(0, _enemysPrefabs.Length)]);
+        return Instantiate(_enemysPrefabs[UnityEngine.Random.Range(0, _enemysPrefabs.Length)]);
     }
 
     private void OnEnemyDestroyed(EnemyController enemy)
     {
+        OnEnemyKilledEvent?.Invoke();
         StartCoroutine(DelayedOnEnemyDestroyed(enemy));
     }
 
     private IEnumerator DelayedOnEnemyDestroyed(EnemyController enemy)
     {
         yield return new WaitForSeconds(_delayedTimeToRelease);
-
-        // Check if the enemy is already inactive
-        if (!enemy.gameObject.activeInHierarchy)
-        {
-            yield break;
-        }
-
         enemy.gameObject.SetActive(false);
         _enemyPool.Release(enemy);
         _enemysInGame--;
@@ -96,26 +129,26 @@ public class SpawnManager : MonoBehaviour
 
         Vector3 cameraPos = Camera.main.transform.position;
 
-        float x = Random.Range(
+        float x = UnityEngine.Random.Range(
             cameraPos.x - halfWidth - spawnRange,
             cameraPos.x + halfWidth + spawnRange
         );
-        float y = Random.Range(
+        float y = UnityEngine.Random.Range(
             cameraPos.y - halfHeight - spawnRange,
             cameraPos.y + halfHeight + spawnRange
         );
 
-        if (Random.value < 0.5f)
+        if (UnityEngine.Random.value < 0.5f)
         {
             x =
-                Random.value < 0.5f
+                UnityEngine.Random.value < 0.5f
                     ? cameraPos.x - halfWidth - spawnRange
                     : cameraPos.x + halfWidth + spawnRange;
         }
         else
         {
             y =
-                Random.value < 0.5f
+                UnityEngine.Random.value < 0.5f
                     ? cameraPos.y - halfHeight - spawnRange
                     : cameraPos.y + halfHeight + spawnRange;
         }
