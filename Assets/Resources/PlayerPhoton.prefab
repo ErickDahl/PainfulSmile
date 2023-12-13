@@ -902,6 +902,7 @@ MonoBehaviour:
   _bulletDamage: 10
   _maxVelocity: 5
   _playerInputReader: {fileID: 11400000, guid: 938bb62a0f55c764c803e59016661def, type: 2}
+  _onPlayerDied: {fileID: 11400000, guid: 8f4ed991cc42c3245aa38f9edacf097c, type: 2}
 --- !u!114 &7882869666418192410
 MonoBehaviour:
   m_ObjectHideFlags: 0

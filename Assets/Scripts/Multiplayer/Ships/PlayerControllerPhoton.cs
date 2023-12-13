@@ -9,6 +9,9 @@ public class PlayerControllerPhoton : ShipBasePhoton
     [SerializeField]
     private InputReader _playerInputReader;
 
+    [SerializeField]
+    private StringEventChannel _onPlayerDied;
+
     void OnEnable()
     {
         _playerInputReader.OnMoveEvent += GetMove;
@@ -44,6 +47,7 @@ public class PlayerControllerPhoton : ShipBasePhoton
     {
         _isShipDead = true;
         _shipCollider.enabled = false;
+        _onPlayerDied.RaiseEvent(_photonView.Owner.NickName);
     }
 
     protected override void MoveShip()
